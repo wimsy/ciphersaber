@@ -1,4 +1,6 @@
 import os
+import sys
+from optparse import OptionParser
 
 '''
 My implementation of CipherSaber-2 from ciphersaber.gurus.org
@@ -65,3 +67,27 @@ def decrypt(key, ciphertext, num_loops=20):
     plaintext = cipher(S, stripped)
     return plaintext
 
+def main():
+    parser = OptionParser(usage='usage: %prog [options] FILE KEY')
+    parser.set_defaults(encrypt=True)
+    parser.add_option('-e', '--encrypt', action='store_true', 
+                      dest='encrypt', help='Encrypt FILE (default)')
+    parser.add_option('-d', '--decrypt', action='store_false', 
+                      dest='encrypt', help='Decrypt FILE')
+    parser.add_option('-n', type='int', dest='num_loops', default=20,
+                      help='Number of times to mix the state array (default: %default)')
+    
+    (options, args) = parser.parse_args()
+    
+    if len(args) != 2:
+        parser.error('Please specify exactly two arguments.')
+        
+    with open(args[0], 'rb') as f:
+        if options.encrypt == True:
+            sys.stdout.write(encrypt(args[1], f.read(), options.num_loops))
+        if options.encrypt == False:
+            sys.stdout.write(decrypt(args[1], f.read(), options.num_loops))
+            
+
+if __name__ == '__main__':
+    main()
